@@ -225,6 +225,15 @@ def monthly_evolution_line_chart(df, date):
 	st.write("€/month evolution of the assets")
 	st.altair_chart(chart, use_container_width=True)
 
+def get_monthly_expenses_from_slider():
+	# Slider with values from 0 to 3000 €
+	monthly_expenses = st.slider('Monthly expenses', 0, 3000, 1000, step=50)
+	return monthly_expenses if monthly_expenses > 0 else 1
+
+def months_of_fi(df, date):
+	monthly_expenses = get_monthly_expenses_from_slider()
+	return int(df['Total'].iloc[date] / monthly_expenses)
+
 def main():
 	"""
 	Main function for creating a financial dashboard using Streamlit.
@@ -245,6 +254,9 @@ def main():
 	with col1:
 		# Get the date from the slider
 		date = get_date_from_slider(df)
+		mofi= months_of_fi(df, date)
+		with st.container(border=True):
+			st.metric("Months of FI", '{} ({:.1f} years)'.format(mofi, mofi/12))
 
 	# Display the asset allocation pie chart in the first column
 	with col2:
