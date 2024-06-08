@@ -21,6 +21,7 @@ def get_excel_to_df(xls_file):
 		df = pd.read_excel(xls_file)
 	except FileNotFoundError:
 		print("File does not exist")
+		st.error("File does not exist")
 		exit(1)
 
 	# Modify date to YYYY-MM-DD format
@@ -245,7 +246,7 @@ def main():
 	st.set_page_config(layout="wide", page_title="My Money Dashboard", page_icon="💰")
 
 	# Load the data from an Excel file
-	xls_file = '/Users/asier/Library/CloudStorage/OneDrive-Personal/Documents/Dinero/My Money.xlsx'
+	xls_file = 'My_Money.xlsx'
 	df = get_excel_to_df(xls_file)
 
 	# Create a two-column layout
