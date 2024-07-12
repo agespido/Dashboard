@@ -6,6 +6,14 @@ import plotly.express as px
 import numpy as np
 import altair as alt
 
+# Define a cool color scheme
+color_discrete_map = {
+	'Stocks': '#3498db',     # blue
+	'Crypto': '#9b59b6',     # purple
+	'Cash': '#1abc9c',       # teal
+	'Home Equity': '#f1c40f' # yellow
+}
+
 def get_excel_to_df(xls_file):
 	"""
 	Reads an Excel file and returns a cleaned Pandas DataFrame.
@@ -105,14 +113,13 @@ def asset_allocation_pie_chart(df, date):
 		None
 	"""
 	# Calculate asset allocation
-	asset_allocation = get_assets(df, ['Stocks', 'Crypto', 'Cash'], date)
+	asset_allocation = get_assets(df, ['Stocks', 'Crypto', 'Cash', 'Home Equity'], date)
 
 	# Create a DataFrame for the pie chart
 	pie_df = pd.DataFrame({'Asset': asset_allocation.keys(), 'Allocation': asset_allocation.values()})
 
 	# Create a native Streamlit pie chart using Plotly
 	st.write("Asset allocation")
-	color_discrete_map = {'Stocks': '#ff9999', 'Crypto': '#66b3ff', 'Cash': '#99ff99'}
 	fig = px.pie(pie_df, values='Allocation', names='Asset', color='Asset', color_discrete_map=color_discrete_map)
 	st.plotly_chart(fig)
 
@@ -182,8 +189,8 @@ def balance_of_the_month_bar_chart(df, date):
 		y='Balance of the month',
 		color=alt.condition(
 			alt.datum['Balance of the month'] > 0,
-			alt.value('#23C552'),  # Green for positive values
-			alt.value('#F84F31')   # Red for negative values
+			alt.value('#1ABC9C'),  # Green for positive values
+			alt.value('#E74C3C')   # Red for negative values
 		) # Eliminate title and axis labels
 	).properties().configure_axis(
 		titleFontSize=0
@@ -206,16 +213,18 @@ def monthly_evolution_line_chart(df, date):
 		None
 	"""
 	# Create a new dataframe with relevant columns
-	df_selected = df[['Date', 'Total', 'Stocks', 'Crypto', 'Cash']][:date + 1]
+	df_selected = df[['Date', 'Stocks', 'Crypto', 'Cash', 'Home Equity']][:date + 1]
 
 	# Melt the dataframe to long format for easier plotting
-	df_melted = df_selected.melt(id_vars=['Date'], value_vars=['Total', 'Stocks', 'Crypto', 'Cash'])
-
-	# Create an Altair line chart
-	chart = alt.Chart(df_melted).mark_line().encode(
+	df_melted = df_selected.melt(id_vars=['Date'], value_vars=['Stocks', 'Crypto', 'Cash', 'Home Equity'])
+	
+	# Create an Altair area chart using the color_discrete_map
+	chart = alt.Chart(df_melted).mark_area().encode(
 		x='Date:T',
 		y=alt.Y('value:Q'),
-		color='variable:N'
+		color=alt.Color('variable:N', 
+						scale=alt.Scale(domain=list(color_discrete_map.keys()),
+						range=list(color_discrete_map.values())))
 	).configure_legend(
 		title=None,
 		orient='top-left'
@@ -248,6 +257,9 @@ def main():
 	# Load the data from an Excel file
 	xls_file = 'My_Money.xlsx'
 	df = get_excel_to_df(xls_file)
+
+	# Add a column for the difference between the house value and the mortgage
+	df['Home Equity'] = abs(df['House']) - abs(df['Debt'])
 
 	# Create a two-column layout
 	col1, col2, col3 = st.columns([2, 3, 2])
