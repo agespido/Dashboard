@@ -5,6 +5,10 @@ from datetime import datetime, timedelta
 import plotly.express as px
 import numpy as np
 import altair as alt
+import warnings
+
+# Ignore all warnings
+warnings.filterwarnings("ignore")
 
 # Define a cool color scheme
 color_discrete_map = {
@@ -82,7 +86,7 @@ def get_date_from_slider(df):
 	# Create a slider to select the date
 	date = st.slider(
 		"Select the date",
-		value=datetime(2020, 1, 1),
+		value=datetime(datetime.now().year, datetime.now().month, datetime.now().day),
 		step=timedelta(days=30),
 		min_value=min_date,
 		max_value=max_date,
