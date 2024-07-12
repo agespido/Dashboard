@@ -1,9 +1,7 @@
 import pandas as pd
 import streamlit as st
-import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 import plotly.express as px
-import numpy as np
 import altair as alt
 import warnings
 
