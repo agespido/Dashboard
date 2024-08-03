@@ -1,8 +1,6 @@
 import streamlit as st
 from datetime import datetime, timedelta
-from utils.data_processing import get_excel_to_df, get_date_from_slider
-from utils.charts import asset_allocation_pie_chart, balance_of_the_month_bar_chart, monthly_evolution_line_chart
-from utils.kpis import show_kpis, months_of_fi
+from utils import *
 
 def display_main_window(st, df):
 	# Create a two-column layout
@@ -11,9 +9,13 @@ def display_main_window(st, df):
 	with col1:
 		# Get the date from the slider
 		date = get_date_from_slider(df)
-		mofi = months_of_fi(df, date)
+		monthly_expenses = get_monthly_expenses_from_slider()
+		months_fi = months_of_fi(df, date, monthly_expenses)
+
 		with st.container(border=True):
-			st.metric("Months of FI", '{} ({:.1f} years)'.format(mofi, mofi / 12))
+			st.metric("Months of FI (retiring today)", "{} ({:.1f} years)".format(months_fi, months_fi / 12))
+		with st.container(border=True):
+			st.metric("FIRE number (applying  the 4\% rule)", "{}".format(format_kpi_value(monthly_expenses * 12 * 25)))
 
 	# Display the asset allocation pie chart in the first column
 	with col2:
