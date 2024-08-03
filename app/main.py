@@ -4,23 +4,7 @@ from utils.data_processing import get_excel_to_df, get_date_from_slider
 from utils.charts import asset_allocation_pie_chart, balance_of_the_month_bar_chart, monthly_evolution_line_chart
 from utils.kpis import show_kpis, months_of_fi
 
-def main():
-	"""
-	Main function for creating a financial dashboard using Streamlit.
-
-	Returns:
-		None
-	"""
-	# Set the page configuration
-	st.set_page_config(layout="wide", page_title="My Money Dashboard", page_icon="💰")
-
-	# Load the data from an Excel file
-	xls_file = 'My_Money.xlsx'
-	df = get_excel_to_df(xls_file)
-
-	# Add a column for the difference between the house value and the mortgage
-	df['Home Equity'] = abs(df['House']) - abs(df['Debt'])
-
+def display_main_window(st, df):
 	# Create a two-column layout
 	col1, col2, col3 = st.columns([2, 3, 2])
 
@@ -49,6 +33,27 @@ def main():
 	with col2:
 		with st.container(border=True):
 			balance_of_the_month_bar_chart(df, date)
+
+def main():
+	"""
+	Main function for creating a financial dashboard using Streamlit.
+
+	Returns:
+		None
+	"""
+	# Set the page configuration
+	st.set_page_config(layout="wide", page_title="My Money Dashboard", page_icon="💰")
+
+	# Load the data from an Excel file
+	xls_file = 'My_Money.xlsx'
+	df = get_excel_to_df(xls_file)
+
+	# Add a column for the difference between the house value and the mortgage
+	df['Home Equity'] = abs(df['House']) - abs(df['Debt'])
+
+	# Create the
+	display_main_window(st, df)
+
 
 if __name__ == '__main__':
 	main()
