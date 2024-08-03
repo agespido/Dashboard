@@ -4,7 +4,7 @@ from utils.data_processing import get_assets
 
 def format_kpi_value(value):
 	"""
-	Formats a KPI value as 1.000,00 � or shows '0,00 �' if NaN.
+	Formats a KPI value as 1.000,00 € or shows '0,00 €' if NaN.
 
 	Args:
 		value (float): The KPI value to format.
@@ -15,7 +15,7 @@ def format_kpi_value(value):
 	if value > 1000 or value < -1000:
 		str_value = f"{value:,.2f}"
 	elif pd.isna(value):
-		return "0,00 �"
+		return "0,00 €"
 	else:
 		str_value = f"{value:.2f}"
 	str_value = str_value.replace(".", "|").replace(",", ".").replace("|", ",")
@@ -48,11 +48,5 @@ def show_kpis(df, date):
 		with st.container(border=True):
 			st.metric(kpi_name, formatted_value, formatted_diff)
 
-def get_monthly_expenses_from_slider():
-	# Slider with values from 0 to 3000 €
-	monthly_expenses = st.slider('Monthly expenses', 0, 3000, 1000, step=50)
-	return monthly_expenses if monthly_expenses > 0 else 1
-
-def months_of_fi(df, date):
-	monthly_expenses = get_monthly_expenses_from_slider()
+def months_of_fi(df, date, monthly_expenses=0):
 	return int(df['Total'].iloc[date] / monthly_expenses)

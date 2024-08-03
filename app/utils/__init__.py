@@ -1,4 +1,5 @@
 # utils/__init__.py
-from .data_processing import get_excel_to_df, get_date_from_slider, get_assets
+from .data_processing import get_excel_to_df
 from .charts import asset_allocation_pie_chart, balance_of_the_month_bar_chart, monthly_evolution_line_chart
-from .kpis import show_kpis, months_of_fi
+from .kpis import format_kpi_value, show_kpis, months_of_fi
+from .inputs import get_monthly_expenses_from_slider, get_date_from_slider
