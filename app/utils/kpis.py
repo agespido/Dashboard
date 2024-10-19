@@ -1,6 +1,9 @@
 import pandas as pd
 import streamlit as st
 from utils.data_processing import get_assets
+import plotly.express as px
+import numpy as np
+from statsmodels.tsa.arima.model import ARIMA
 
 def format_kpi_value(value):
 	"""
@@ -50,3 +53,36 @@ def show_kpis(df, date):
 
 def months_of_fi(df, date, monthly_expenses=0):
 	return int(df['Total'].iloc[date] / monthly_expenses)
+
+def asset_value_forecast(df, p=24, d=1, q=6):
+	# Preprocessing
+	df['Date'] = pd.to_datetime(df['Date'])
+	df = df.set_index('Date')
+	
+	# Eliminate NaN values
+	df = df.dropna(subset=['Total'])
+	
+	# Dependent variable
+	y = df['Total']
+	
+	# ARIMA model
+	# Parameters: ARIMA(p, d, q)
+	# p: The number of lag observations included in the model
+	# d: The number of times that the raw observations are differenced
+	# q: The size of the moving average
+	model = ARIMA(y, order=(p, d, q))
+	model_fit = model.fit()
+	
+	# Future dates
+	future = pd.date_range(start=df.index[-1], periods=13, freq='MS')
+	future_df = pd.DataFrame(future, columns=['Date'])
+	future_df = future_df.set_index('Date')
+
+	# ARIMA based predictions
+	pred = model_fit.forecast(steps=12)  # 12 months
+	# Adjust the predictions to the original data
+	future_df['predicted_assets'] = np.append([np.nan], pred)
+	future_df['predicted_assets'] = future_df['predicted_assets'].shift(-1)
+
+	return pd.concat([df, future_df])[:-1], model_fit.aic, model_fit.bic
+

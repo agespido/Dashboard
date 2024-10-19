@@ -3,6 +3,7 @@ import streamlit as st
 import plotly.express as px
 import altair as alt
 from utils.data_processing import get_assets
+from utils.kpis import asset_value_forecast
 
 color_discrete_map = {
 	'Stocks': '#3498db',     # blue
@@ -47,8 +48,11 @@ def balance_of_the_month_bar_chart(df, date):
 	# Create a dataframe with positive and negative values for the balance of the month
 	df_balance_month = df[['Date', 'Balance of the month']][:date + 1]
 
-	# Create an Altair chart
-	chart = alt.Chart(df_balance_month).mark_bar().encode(
+	# Calculate the mean of the current and previous values at each point (cumulative mean)
+	df_balance_month['Mean'] = df_balance_month['Balance of the month'][1:].expanding().mean()
+
+	# Create an Altair bar chart for balance of the month
+	bars = alt.Chart(df_balance_month).mark_bar().encode(
 		x='Date',
 		y='Balance of the month',
 		color=alt.condition(
@@ -56,14 +60,25 @@ def balance_of_the_month_bar_chart(df, date):
 			alt.value('#1ABC9C'),  # Green for positive values
 			alt.value('#E74C3C')   # Red for negative values
 		)
-	).properties().configure_axis(
+	)
+
+	# Create an Altair line chart for the mean
+	line = alt.Chart(df_balance_month).mark_line(color='yellow').encode(
+		x='Date',
+		y='Mean'
+	)
+
+	# Combine both charts and configure the combined chart
+	combined_chart = alt.layer(bars, line).properties(
+	).configure_axis(
 		titleFontSize=0
 	).configure_legend(
 		title=None  # Remove the legend title
 	).interactive()
-	# Display the customized chart using st.altair_chart
-	st.write('Balance of the month')
-	st.altair_chart(chart, use_container_width=True)
+
+	# Display the combined chart in Streamlit
+	st.write('Balance of the month and its mean')
+	st.altair_chart(combined_chart, use_container_width=True)
 
 def monthly_evolution_line_chart(df, date):
 	"""
@@ -99,3 +114,37 @@ def monthly_evolution_line_chart(df, date):
 	st.write("€/month evolution of the assets")
 	st.altair_chart(chart, use_container_width=True)
 
+def total_asset_forecast_line_chart(df, p, d, q):
+	"""
+	Creates a line chart showing the total asset values and the ARIMA forecast based on the given dataframe.
+
+	Args:
+		df (pd.DataFrame): The dataframe containing asset data.
+
+	Returns:
+		None
+	"""
+	# Ensure to import the asset_value_forecast from utils.kpis
+	df_forecast, aic, bic = asset_value_forecast(df, p, d, q)
+	
+	# Reset index to make 'Date' a column
+	df_forecast = df_forecast.reset_index()
+
+	# Prepare the line chart
+	fig = px.line(df_forecast, x='Date', y=['Total', 'predicted_assets'], 
+				  labels={'value': 'Assets', 'variable': 'Type'})
+	# Adjust the layout to the edge of the chart
+	fig.update_layout(margin=dict(l=0, r=0, t=0, b=0))
+	
+	# Update the traces to include lines and markers
+	fig.update_traces(mode='lines+markers', marker=dict(size=5))
+	fig.data[0].name = 'Real values'
+	fig.data[1].name = 'Predicted values'
+	fig.data[0].line.color = 'blue'
+	fig.data[1].line.color = 'red'
+	
+	# Display the chart
+	st.plotly_chart(fig)
+
+	# Two columns for the AIC and BIC values
+	return df_forecast, aic, bic

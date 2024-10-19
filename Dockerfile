@@ -20,6 +20,8 @@ RUN pip3 install pandas
 RUN pip3 install plotly
 RUN pip3 install streamlit
 RUN pip3 install openpyxl
+RUN pip3 install scikit-learn
+RUN pip3 install statsmodels
 
 # Make port 8501 available to the world outside this container
 EXPOSE 8051
