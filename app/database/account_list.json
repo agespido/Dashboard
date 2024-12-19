@@ -1,0 +1,17 @@
+[
+	{
+		"name": "Bank",
+		"type": "Cash",
+		"currency": "EUR"
+	},
+	{
+		"name": "Exchange",
+		"type": "Crypto",
+		"currency": "EUR"
+	},
+	{
+		"name": "AnotherBank",
+		"type": "Stocks",
+		"currency": "EUR"
+	}
+]
