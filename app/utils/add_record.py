@@ -48,9 +48,6 @@ def display_new_record_window(st):
 	for account in accounts:
 		account["value"] = None
 
-	# Streamlit interface
-	st.title('Account management')
-
 	# Dictionary to store input values
 	json_out_values = {}
 	# Record the date
