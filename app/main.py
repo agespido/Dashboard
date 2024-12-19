@@ -83,11 +83,13 @@ def main():
 	df['Home Equity'] = abs(df['House']) - abs(df['Debt'])
 
 	# Create the dashboard with two windows
-	tab1, tab2 = st.tabs(["Main", "Forecast"])
+	tab1, tab2, tab3 = st.tabs(["Main", "Forecast", "Add new record"])
 	with tab1:
 		display_main_window(st, df)	
 	with tab2:
 		display_forecast_window(st, df)
+	with tab3:
+		display_new_record_window(st)
 
 if __name__ == '__main__':
 	main()
